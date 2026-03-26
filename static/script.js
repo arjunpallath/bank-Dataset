@@ -280,4 +280,113 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         });
     }
+
+    // ---- Tracking Search Logic ----
+    const trackBtn = document.getElementById('btn-track');
+    const trackInput = document.getElementById('track-id');
+    const trackResultBox = document.getElementById('track-result-box');
+    const trackEmptyState = document.getElementById('track-empty');
+
+    if (trackBtn && trackInput) {
+        trackBtn.addEventListener('click', async () => {
+            const id = trackInput.value.trim();
+            if (!id) return alert("Please enter a Transaction or Account ID");
+
+            trackBtn.disabled = true;
+            trackBtn.textContent = 'Searching...';
+
+            try {
+                const res = await fetch(`/api/track/${id}`);
+                const result = await res.json();
+
+                if (result.status === 'success') {
+                    const data = result.data;
+                    document.getElementById('res-balance').textContent = `$${(data.balance || 0).toLocaleString()}`;
+                    document.getElementById('res-amount').textContent = `$${(data.amount || 0).toLocaleString()}`;
+                    
+                    const statusEl = document.getElementById('res-status');
+                    statusEl.textContent = data.status;
+                    statusEl.style.background = data.status === 'Secure' ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)';
+                    statusEl.style.color = data.status === 'Secure' ? 'var(--success)' : 'var(--danger)';
+                    
+                    document.getElementById('res-time').textContent = data.time || 'N/A';
+
+                    trackResultBox.style.display = 'block';
+                    trackEmptyState.style.display = 'none';
+                } else {
+                    alert(result.message);
+                    trackResultBox.style.display = 'none';
+                    trackEmptyState.style.display = 'block';
+                }
+            } catch (err) {
+                console.error("Tracking failed", err);
+                alert("Tracking system offline. Please try again later.");
+            } finally {
+                trackBtn.disabled = false;
+                trackBtn.textContent = 'Track Now';
+            }
+        });
+    }
+
+    // ---- Logout Feedback Modal Logic ----
+    const logoutLinks = document.querySelectorAll('.logout-link');
+    const logoutModal = document.getElementById('logout-modal');
+    const stars = document.querySelectorAll('.star');
+    const ratingText = document.getElementById('rating-text');
+    const btnSubmitLogout = document.getElementById('btn-submit-logout');
+    const btnSkipLogout = document.getElementById('btn-skip-logout');
+
+    let selectedRating = 0;
+
+    const ratingLabels = {
+        1: "Poor 😞",
+        2: "Fair 😐",
+        3: "Good 🙂",
+        4: "Very Good 😊",
+        5: "Excellent! 🤩"
+    };
+
+    if (logoutLinks.length > 0 && logoutModal) {
+        logoutLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                sessionStorage.setItem('pendingLogoutUrl', link.href);
+                logoutModal.style.display = 'flex';
+            });
+        });
+
+        stars.forEach(star => {
+            star.addEventListener('click', () => {
+                selectedRating = parseInt(star.getAttribute('data-value'));
+                updateStars(selectedRating);
+                ratingText.textContent = ratingLabels[selectedRating];
+                btnSubmitLogout.disabled = false;
+            });
+            star.addEventListener('mouseover', () => {
+                const hoverValue = parseInt(star.getAttribute('data-value'));
+                updateStars(hoverValue);
+            });
+
+            star.addEventListener('mouseout', () => {
+                updateStars(selectedRating);
+            });
+        });
+
+        function updateStars(value) {
+            stars.forEach(s => {
+                const sValue = parseInt(s.getAttribute('data-value'));
+                s.classList.toggle('active', sValue <= value);
+            });
+        }
+
+        btnSubmitLogout.addEventListener('click', () => {
+            const logoutUrl = sessionStorage.getItem('pendingLogoutUrl') || '/logout';
+            window.location.href = logoutUrl;
+        });
+
+        btnSkipLogout.addEventListener('click', () => {
+            const logoutUrl = sessionStorage.getItem('pendingLogoutUrl') || '/logout';
+            window.location.href = logoutUrl;
+        });
+    }
 });

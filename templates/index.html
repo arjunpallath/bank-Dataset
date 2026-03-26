@@ -25,10 +25,10 @@
                 <a href="#" class="nav-item active" data-target="dashboard">
                     <span class="icon">📊</span> Dashboard
                 </a>
+                {% if role == 'admin' %}
                 <a href="#" class="nav-item" data-target="history">
                     <span class="icon">🧾</span> History
                 </a>
-                {% if role == 'admin' %}
                 <a href="#" class="nav-item" data-target="analytics" id="nav-analytics">
                     <span class="icon">📈</span> Analytics
                 </a>
@@ -145,8 +145,45 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- 1b. Tracking Lookup -->
+                    <div class="glass-panel tracking-panel" style="margin-top: 2rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+                            <h3>🔍 Track a Move or Account</h3>
+                            <div style="display: flex; gap: 0.5rem; flex: 1; min-width: 300px; justify-content: flex-end;">
+                                <input type="text" id="track-id" placeholder="Enter Transaction or Account ID (e.g. TXN-8429)" style="padding: 0.6rem 1rem; border-radius: 8px; border: 1px solid var(--divider); flex: 1; max-width: 400px; background: rgba(255,255,255,0.5);">
+                                <button class="btn-primary" id="btn-track" style="white-space: nowrap;">Track Now</button>
+                            </div>
+                        </div>
+                        
+                        <div id="track-result-box" style="display: none; padding: 1.5rem; border-radius: 12px; background: rgba(var(--accent-rgb), 0.03); border: 1px solid rgba(var(--accent-rgb), 0.1);">
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1.5rem;">
+                                <div>
+                                    <p class="text-muted" style="margin-bottom: 0.2rem;">Account Balance</p>
+                                    <h4 id="res-balance" style="font-size: 1.5rem; color: var(--accent);">$0.00</h4>
+                                </div>
+                                <div>
+                                    <p class="text-muted" style="margin-bottom: 0.2rem;">Transaction Amount</p>
+                                    <h4 id="res-amount">$0.00</h4>
+                                </div>
+                                <div>
+                                    <p class="text-muted" style="margin-bottom: 0.2rem;">Status</p>
+                                    <span id="res-status" style="padding: 0.2rem 0.6rem; border-radius: 6px; font-weight: 600; font-size: 0.85em;">--</span>
+                                </div>
+                                <div>
+                                    <p class="text-muted" style="margin-bottom: 0.2rem;">Last Updated</p>
+                                    <p id="res-time" style="font-weight: 500;">--</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="track-empty" class="text-center py-4">
+                            <p class="text-muted">Enter an ID above to see balance and security details.</p>
+                        </div>
+                    </div>
                 </section>
 
+                {% if role == 'admin' %}
                 <!-- 2. Transaction History Section -->
                 <section id="history" class="page-section">
                     <div class="glass-panel">
@@ -169,6 +206,7 @@
                         </div>
                     </div>
                 </section>
+                {% endif %}
 
                 {% if role == 'admin' %}
                 <!-- 3. Analytics Section -->
@@ -296,12 +334,75 @@
                             </table>
                         </div>
                     </div>
-                </section>
                 {% endif %}
+
+                <!-- 5. Support Section -->
+                <section id="support" class="page-section">
+                    <div class="glass-panel support-container">
+                        <div class="support-header text-center">
+                            <span class="support-icon" style="font-size: 3rem;">🎧</span>
+                            <h3 style="font-size: 1.8rem; margin-top: 1rem;">Customer Support</h3>
+                            <p class="text-muted">We are here to help you 24/7</p>
+                        </div>
+                        <hr class="divider">
+                        
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-top: 2rem;">
+                            <div class="glass-panel" style="text-align: center; padding: 1.5rem;">
+                                <div style="font-size: 2rem; margin-bottom: 0.5rem;">📞</div>
+                                <h4 style="margin-bottom: 0.5rem;">Phone Support</h4>
+                                <p style="font-weight: 600; color: var(--accent);">+91 8431444844</p>
+                            </div>
+                            <div class="glass-panel" style="text-align: center; padding: 1.5rem;">
+                                <div style="font-size: 2rem; margin-bottom: 0.5rem;">📧</div>
+                                <h4 style="margin-bottom: 0.5rem;">Email Support</h4>
+                                <p style="font-weight: 600; color: var(--accent);">support@bankio.com</p>
+                                <p class="text-muted" style="font-size: 0.9em; margin-top: 0.2rem;">Alt: help@bankio.com</p>
+                            </div>
+                        </div>
+
+                        <div class="glass-panel" style="margin-top: 2rem; text-align: center; background: rgba(var(--accent-rgb), 0.05);">
+                            <h4>Talk to us live</h4>
+                            <p class="text-muted" style="margin-bottom: 1rem;">Typical response time: < 2 minutes</p>
+                            <button class="btn-outline">Start Chat</button>
+                        </div>
+                    </div>
+                </section>
                 
             </div>
         </main>
     </div>
+
+    <!-- Logout Feedback Modal -->
+    {% if role != 'admin' %}
+    <div id="logout-modal" class="modal-overlay">
+        <div class="modal-content glass-panel">
+            <div class="modal-header">
+                <h3>Share Your Experience</h3>
+                <p class="text-muted">How was your session today?</p>
+            </div>
+            
+            <div class="rating-section">
+                <div class="star-rating">
+                    <span class="star" data-value="1">★</span>
+                    <span class="star" data-value="2">★</span>
+                    <span class="star" data-value="3">★</span>
+                    <span class="star" data-value="4">★</span>
+                    <span class="star" data-value="5">★</span>
+                </div>
+                <p id="rating-text" class="text-accent" style="font-weight: 600; margin-top: 0.5rem;"></p>
+            </div>
+
+            <div class="review-section">
+                <textarea id="review-comment" placeholder="Any suggestions or comments? (Optional)" class="review-input"></textarea>
+            </div>
+
+            <div class="modal-actions">
+                <button id="btn-skip-logout" class="btn-text">Skip & Logout</button>
+                <button id="btn-submit-logout" class="btn-primary" disabled>Submit & Logout</button>
+            </div>
+        </div>
+    </div>
+    {% endif %}
 
     <!-- Script connection -->
     <script src="{{ url_for('static', filename='script.js') }}"></script>

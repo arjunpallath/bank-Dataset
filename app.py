@@ -89,6 +89,26 @@ def get_history():
         {"id": "TXN-8426", "amount": 890.00, "type": "Debit", "status": "Secure", "time": "3 hours ago"},
         {"id": "TXN-8425", "amount": 5400.00, "type": "Debit", "status": "Suspicious", "time": "5 hours ago"}
     ])
+    
+@app.route('/api/track/<txn_id>')
+def track_txn(txn_id):
+    # Mock data lookup
+    mock_history = [
+        {"id": "TXN-8429", "amount": 150.00, "type": "Debit", "status": "Secure", "time": "2 mins ago", "balance": 4500.50},
+        {"id": "TXN-8428", "amount": 12500.00, "type": "Credit", "status": "Suspicious", "time": "15 mins ago", "balance": 17000.50},
+        {"id": "TXN-8427", "amount": 24.50, "type": "Debit", "status": "Secure", "time": "1 hour ago", "balance": 4525.00},
+        {"id": "TXN-8426", "amount": 890.00, "type": "Debit", "status": "Secure", "time": "3 hours ago", "balance": 5415.00},
+        {"id": "TXN-8425", "amount": 5400.00, "type": "Debit", "status": "Suspicious", "time": "5 hours ago", "balance": 10815.00}
+    ]
+    
+    # Also check review queue
+    all_records = mock_history + review_queue
+    
+    match = next((x for x in all_records if x['id'] == txn_id), None)
+    if match:
+        return jsonify({"status": "success", "data": match})
+    
+    return jsonify({"status": "error", "message": "Transaction or Account ID not found"}), 404
 
 @app.route('/predict', methods=['POST'])
 def predict():
